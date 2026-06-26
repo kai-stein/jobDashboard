@@ -15,7 +15,6 @@ def main():
     empyt_summary = st.empty()
     #form - must click submit
     with st.form("Done a new application?"):
-        df_basic_stats(df)
         df = st.data_editor(df,num_rows="dynamic")
         submit_button = st.form_submit_button("save jobs?")
     
