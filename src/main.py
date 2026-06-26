@@ -10,9 +10,10 @@ def main():
 
 
     st.markdown("# job hunt dashboard")
-    #summary of data
-    df_basic_stats(df)
-    #
+
+    #placeholder to popluated after the dataframe so its "live"
+    empyt_summary = st.empty()
+    #form - must click submit
     with st.form("Done a new application?"):
         df_basic_stats(df)
         df = st.data_editor(df,num_rows="dynamic")
@@ -21,8 +22,8 @@ def main():
     if submit_button:
         df = save_data(df)
         print("data saved")
-    
-    st.markdown(f"Jobs currently listed: {len(df.index)}")
+
+    empyt_summary.markdown(f"Jobs currently listed: {len(df.index)}")
     #st.button
 
 def df_basic_stats(datafame):
