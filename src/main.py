@@ -8,15 +8,26 @@ def main():
     df = check_data_exists()
     st.session_state.has_run = True
 
+
     st.markdown("# job hunt dashboard")
+    #summary of data
+    df_basic_stats(df)
+    #
     with st.form("Done a new application?"):
-        edited_df = st.data_editor(df)
+        df_basic_stats(df)
+        df = st.data_editor(df,num_rows="dynamic")
         submit_button = st.form_submit_button("save jobs?")
     
     if submit_button:
-        df = save_data(edited_df)
-
+        df = save_data(df)
+        print("data saved")
+    
+    st.markdown(f"Jobs currently listed: {len(df.index)}")
     #st.button
+
+def df_basic_stats(datafame):
+    st.markdown(f"Jobs currently listed: {len(datafame.index)}")
+    st.markdown(f"In Progress: {datafame.query('status==True').count()}")
 
 def save_data(df_to_save):
     data_file = "./content/data.parquet"
