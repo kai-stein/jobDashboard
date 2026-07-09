@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 import streamlit as st
+from datetime import date
 
 def main():
     
@@ -15,7 +16,17 @@ def main():
     empyt_summary = st.empty()
     #form - must click submit
     with st.form("Done a new application?"):
-        df = st.data_editor(df,num_rows="dynamic")
+        df = st.data_editor(
+            df,
+            num_rows="dynamic",
+            column_config = {
+                "website" : st.column_config.LinkColumn(),
+                "status" :  st.column_config.SelectboxColumn(
+                    "Job Applcation Status",
+                    options = ["In Progress", "Waiting Responce", "Interview", "Closed",],
+                    help = "chose from In Progress, Waiting Responce, Interview, Closed"
+                ),
+            })
         submit_button = st.form_submit_button("save jobs?")
     
     if submit_button:
@@ -48,8 +59,10 @@ def check_data_exists():
         #new dataframe create df skelaton
         data_struc = {
             "jobName" : ["first"],
-            "website" : ["web"],
-            "status" : [False],
+            "website" : ["www.google.com"],
+            "status" : [None],
+            "AppliedDat" : [str(date.today())],
+            "Action" : [""]
         }
         df = pd.DataFrame(data_struc)
         df.to_parquet(data_file, engine="fastparquet")
