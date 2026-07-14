@@ -2,7 +2,8 @@ import os
 import sys
 import pandas as pd
 import streamlit as st
-from datetime import date
+import datetime as dt
+#from datetime import date
 import time
 
 def main():
@@ -13,9 +14,9 @@ def main():
 
     st.markdown("# job hunt dashboard")
 
-    #placeholder to popluated after the dataframe so its "live"
-    empyt_summary = st.empty()
-    empyt_in_progress = st.empty()
+    #Adding columns to hold general stats about the data
+    col1, col2, col3 = st.columns(3)
+
     #form - must click submit
     with st.form("Done a new application?"):
         df = st.data_editor(
@@ -28,7 +29,7 @@ def main():
                     options = ["In Progress", "Waiting Responce", "Interview", "Closed",],
                     help = "chose from In Progress, Waiting Responce, Interview, Closed"
                 ),
-                "AppliedDate" : st.column_config.DateColumn(required=True, default=date.today()),
+                "AppliedDate" : st.column_config.DateColumn(required=True, default=dt.date.today()),
             })
         submit_button = st.form_submit_button("save jobs?")
     
@@ -38,11 +39,18 @@ def main():
         time.sleep(1)
         success.empty()
 
-    empyt_summary.markdown(f"Jobs currently listed: {len(df.index)}")
-    empyt_in_progress.markdown(f"Number of jobs in progress: {df_basic_stats(df)}")
+    dataStats = df_basic_stats(df)
+    col1.metric("Jobs on Board",dataStats["TOT"])
+    col2.metric("In Progress", dataStats["INP"])
+    col3.metric("Review",dataStats["REV"])
 
-def df_basic_stats(datafame):
-    return (datafame["status"]=="In Progress").sum()
+def df_basic_stats(dataframe):
+    summary_dict = {}
+    summary_dict["TOT"] = len(dataframe.index)
+    summary_dict["INP"] = (dataframe["status"]=="In Progress").sum()
+    
+    summary_dict["REV"] = (((dt.date.today() - dataframe["AppliedDate"]).dt.days) > 3).sum()
+    return summary_dict
 
 def save_data(df_to_save):
     data_file = "./content/data.parquet"
@@ -65,7 +73,7 @@ def check_data_exists():
             "jobName" : ["first"],
             "website" : ["www.google.com"],
             "status" : [None],
-            "AppliedDate" : [date.today()],
+            "AppliedDate" : [dt.date.today()],
             "Action" : [""]
         }
         df = pd.DataFrame(data_struc)
