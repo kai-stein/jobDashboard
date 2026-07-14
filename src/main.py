@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import streamlit as st
 from datetime import date
+import time
 
 def main():
     
@@ -14,6 +15,7 @@ def main():
 
     #placeholder to popluated after the dataframe so its "live"
     empyt_summary = st.empty()
+    empyt_in_progress = st.empty()
     #form - must click submit
     with st.form("Done a new application?"):
         df = st.data_editor(
@@ -26,23 +28,25 @@ def main():
                     options = ["In Progress", "Waiting Responce", "Interview", "Closed",],
                     help = "chose from In Progress, Waiting Responce, Interview, Closed"
                 ),
+                "AppliedDate" : st.column_config.DateColumn(required=True, default=date.today()),
             })
         submit_button = st.form_submit_button("save jobs?")
     
     if submit_button:
         df = save_data(df)
-        print("data saved")
+        success = st.success("data saved")
+        time.sleep(1)
+        success.empty()
 
     empyt_summary.markdown(f"Jobs currently listed: {len(df.index)}")
-    #st.button
+    empyt_in_progress.markdown(f"Number of jobs in progress: {df_basic_stats(df)}")
 
 def df_basic_stats(datafame):
-    st.markdown(f"Jobs currently listed: {len(datafame.index)}")
-    st.markdown(f"In Progress: {datafame.query('status==True').count()}")
+    return (datafame["status"]=="In Progress").sum()
 
 def save_data(df_to_save):
     data_file = "./content/data.parquet"
-    df_to_save.to_parquet(data_file, engine="fastparquet")
+    df_to_save.to_parquet(data_file, engine="pyarrow")
     return df_to_save
 
 
@@ -61,15 +65,16 @@ def check_data_exists():
             "jobName" : ["first"],
             "website" : ["www.google.com"],
             "status" : [None],
-            "AppliedDat" : [str(date.today())],
+            "AppliedDate" : [date.today()],
             "Action" : [""]
         }
         df = pd.DataFrame(data_struc)
-        df.to_parquet(data_file, engine="fastparquet")
+        #print(df)
+        df.to_parquet(data_file, engine="pyarrow")
         return df
     
     #else read in the file
-    df = pd.read_parquet(data_file, engine="fastparquet")
+    df = pd.read_parquet(data_file, engine="pyarrow")
     return df
     
 
