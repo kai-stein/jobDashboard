@@ -29,12 +29,12 @@ def main():
                     options = ["In Progress", "Waiting Responce", "Interview", "Closed",],
                     help = "chose from In Progress, Waiting Responce, Interview, Closed"
                 ),
-                "AppliedDate" : st.column_config.DateColumn(required=True, default=dt.date.today()),
+                "AppliedDate" : st.column_config.DateColumn(required=True, default=dt.datetime.now()),
             })
         submit_button = st.form_submit_button("save jobs?")
     
     if submit_button:
-        df = save_data(df)
+        save_data(df)
         success = st.success("data saved")
         time.sleep(1)
         success.empty()
@@ -44,18 +44,19 @@ def main():
     col2.metric("In Progress", dataStats["INP"])
     col3.metric("Review",dataStats["REV"])
 
+
 def df_basic_stats(dataframe):
     summary_dict = {}
     summary_dict["TOT"] = len(dataframe.index)
     summary_dict["INP"] = (dataframe["status"]=="In Progress").sum()
-    
-    summary_dict["REV"] = (((dt.date.today() - dataframe["AppliedDate"]).dt.days) > 3).sum()
+    summary_dict["REV"] = (((dt.datetime.now() - dataframe["AppliedDate"]).dt.days) > 3).sum()
     return summary_dict
 
 def save_data(df_to_save):
+    print("saving")
     data_file = "./content/data.parquet"
     df_to_save.to_parquet(data_file, engine="pyarrow")
-    return df_to_save
+    #return df_to_save
 
 
 @st.cache_data
@@ -79,10 +80,12 @@ def check_data_exists():
         df = pd.DataFrame(data_struc)
         #print(df)
         df.to_parquet(data_file, engine="pyarrow")
+        df["AppliedDate"] = pd.to_datetime(df["AppliedDate"])
         return df
     
     #else read in the file
     df = pd.read_parquet(data_file, engine="pyarrow")
+    df["AppliedDate"] = pd.to_datetime(df["AppliedDate"])
     return df
     
 
