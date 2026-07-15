@@ -19,7 +19,7 @@ def main():
 
     #form - must click submit
     with st.form("Done a new application?"):
-        df = st.data_editor(
+        editedDF = st.data_editor(
             df,
             num_rows="dynamic",
             column_config = {
@@ -34,7 +34,7 @@ def main():
         submit_button = st.form_submit_button("save jobs?")
     
     if submit_button:
-        save_data(df)
+        df = save_data(editedDF)
         success = st.success("data saved")
         time.sleep(1)
         success.empty()
@@ -56,7 +56,7 @@ def save_data(df_to_save):
     print("saving")
     data_file = "./content/data.parquet"
     df_to_save.to_parquet(data_file, engine="pyarrow")
-    #return df_to_save
+    return df_to_save
 
 
 @st.cache_data
