@@ -29,7 +29,7 @@ def main():
                     options = ["In Progress", "Waiting Responce", "Interview", "Closed",],
                     help = "chose from In Progress, Waiting Responce, Interview, Closed"
                 ),
-                "AppliedDate" : st.column_config.DateColumn(required=True, default=dt.datetime.now()),
+                "AppliedDate" : st.column_config.DateColumn(required=True, default=dt.date.today()),
             })
         submit_button = st.form_submit_button("save jobs?")
     
